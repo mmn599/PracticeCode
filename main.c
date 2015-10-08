@@ -44,12 +44,7 @@ void ADC_Init() {
 
 	ADC14_configureSingleSampleMode(ADC_MEM0, false);
 
-	ADC14_configureConversionMemory(ADC_MEM0 | ADC_MEM1 | ADC_MEM2 | ADC_MEM3 | ADC_MEM4 | ADC_MEM5 |
-			ADC_MEM6 | ADC_MEM7 | ADC_MEM8 | ADC_MEM9 | ADC_MEM10 | ADC_MEM11 |
-			ADC_MEM12 | ADC_MEM13 | ADC_MEM14 | ADC_MEM15 | ADC_MEM16 | ADC_MEM17 |
-			ADC_MEM18 | ADC_MEM19 | ADC_MEM20 | ADC_MEM21 | ADC_MEM22 | ADC_MEM23 |
-			ADC_MEM24 | ADC_MEM25 | ADC_MEM26 | ADC_MEM27 | ADC_MEM28 | ADC_MEM29 |
-			ADC_MEM30 | ADC_MEM31, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A0, false);
+	ADC14_configureConversionMemory(ADC_MEM0, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A0, false);
 
 	ADC14_enableSampleTimer(ADC_AUTOMATIC_ITERATION);
 	ADC14_setPowerMode(ADC_UNRESTRICTED_POWER_MODE);
@@ -104,6 +99,7 @@ uint8_t DacTable_32[32] = {0x19,0x1e,0x23,0x27,0x2b,0x2e,0x30,0x32,
 void DMA_Init() {
     DMA_enableModule();
     DMA_setControlBase(controlTable);
+
 
     DMA_assignChannel(DMA_CH0_TIMERA0CCR0);
     DMA_setChannelControl(UDMA_PRI_SELECT | DMA_CH0_TIMERA0CCR0,
@@ -180,7 +176,7 @@ int main(void) {
 
     while(1) {
     	dac_output(data_table, DacTable_32);
-    	sendDataUART(data_table);
+//    	sendDataUART(data_table);
     }
 
 }
