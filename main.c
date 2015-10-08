@@ -42,7 +42,7 @@ void ADC_Init() {
 	ADC14_setSampleHoldTrigger(ADC_TRIGGER_ADCSC, false);
 	ADC14_setSampleHoldTime(ADC_PULSE_WIDTH_4, ADC_PULSE_WIDTH_4);
 
-	ADC14_configureMultiSequenceMode(ADC_MEM0, ADC_MEM31, false);
+	ADC14_configureSingleSampleMode(ADC_MEM0, false);
 
 	ADC14_configureConversionMemory(ADC_MEM0 | ADC_MEM1 | ADC_MEM2 | ADC_MEM3 | ADC_MEM4 | ADC_MEM5 |
 			ADC_MEM6 | ADC_MEM7 | ADC_MEM8 | ADC_MEM9 | ADC_MEM10 | ADC_MEM11 |
@@ -125,8 +125,8 @@ void DMA_Init() {
 
 const eUSCI_UART_Config uartConfig = {
             EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-			78,                                      // BRDIV = 78
-            2,                                       // UCxBRF = 2
+			312,                                      // BRDIV = 78
+            8,                                       // UCxBRF = 2
             0,                                       // UCxBRS = 0
             EUSCI_A_UART_NO_PARITY,                  // No Parity
             EUSCI_A_UART_LSB_FIRST,                  // MSB First
@@ -136,13 +136,15 @@ const eUSCI_UART_Config uartConfig = {
 };
 
 void UART_Init() {
+    GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P1,
+            GPIO_PIN1 | GPIO_PIN2 | GPIO_PIN3, GPIO_PRIMARY_MODULE_FUNCTION);
     UART_initModule(EUSCI_A0_MODULE, &uartConfig);
     UART_enableModule(EUSCI_A0_MODULE);
 }
 
 void sampleData();
 void sendDataUART();
-extern void dac_output(void);
+extern void dac_output(uint16_t*, uint8_t*);
 
 
 int main(void) {
@@ -159,8 +161,26 @@ int main(void) {
 //    Interrupt_enableInterrupt(INT_ADC14);
 //    Interrupt_enableMaster();
 //    Timer_A_startCounter(TIMER_A0_MODULE, TIMER_A_UP_MODE);
+
+    uint16_t data_table[64];
+
+    uint8_t DacTable_64[64] = {0x19,0x1b,0x1e,0x20,0x23,0x25,0x27,0x29,
+    		0x2b,0x2c,0x2e,0x2f,0x30,0x31,0x32,0x32,
+    		0x32,0x32,0x32,0x31,0x30,0x2f,0x2e,0x2c,
+    		0x2b,0x29,0x27,0x25,0x23,0x20,0x1e,0x1b,
+    		0x19,0x17,0x14,0x12,0xf,0xd,0xb,0x9,
+    		0x7,0x6,0x4,0x3,0x2,0x1,0x0,0x0,
+    		0x0,0x0,0x0,0x1,0x2,0x3,0x4,0x6,
+    		0x7,0x9,0xb,0xd,0xf,0x12,0x14,0x17};
+
+    uint8_t DacTable_32[32] = {0x19,0x1e,0x23,0x27,0x2b,0x2e,0x30,0x32,
+    0x32,0x32,0x30,0x2e,0x2b,0x27,0x23,0x1e,
+    0x19,0x14,0xf,0xb,0x7,0x4,0x2,0x0,
+    0x0,0x0,0x2,0x4,0x7,0xb,0xf,0x14};
+
     while(1) {
-    	dac_output();
+    	dac_output(data_table, DacTable_32);
+    	sendDataUART(data_table);
     }
 
 }

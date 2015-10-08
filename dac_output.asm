@@ -7,79 +7,53 @@
 ;		0x19,0x14,0xf,0xb,0x7,0x4,0x2,0x0,
 ;		0x0,0x0,0x2,0x4,0x7,0xb,0xf,0x14};
 data_loc:
+		.word 0x40012098 ;ADC14MEM0
 		.word 0x40012000 ;ADC14CTL
         .word 0x40004C23 ;p4out register
+
+        ;r0 is output data table pointer
+        ;r1 is dac table pointer
 dac_output:
-        ldr r1, [pc, #-8] ;r1 contains P4OUT
-        ldr r2, [pc, #-16] ;r2 contains ADC14CTL
-        ldr r4, [r2]
-        orr r4, r4, #1
-        ;turn on ADC sampling
-        str r4, [r2]
+        ldr r2, [pc, #-8] ;r2 contains P4OUT pointer
+        ldr r3, [pc, #-16] ;r3 contains ADC14CTL pointer
+        ldr r4, [pc, #-24] ;r4 contains ADC14MEM0 pointer
+        ldr r5, [r3]
+       	orr r5, r5, #1		;r4 sets the bit in ADC14CTL to enable conversions
+       	mov r8, #0
+       	mov r9, #0
+
 inner_loop:
-        mov r3, #0x19
-   		strb r3, [r1]
-   		mov r3, #0x1e
-   		strb r3, [r1]
-   		mov r3, #0x23
-   		strb r3, [r1]
-   		mov r3, #0x27
-   		strb r3, [r1]
-   		mov r3, #0x2b
-   		strb r3, [r1]
-   		mov r3, #0x2e
-   		strb r3, [r1]
-   		mov r3, #0x30
-   		strb r3, [r1]
-   		mov r3, #0x32
-   		strb r3, [r1]
-   		mov r3, #0x32
-   		strb r3, [r1]
-   		mov r3, #0x32
-   		strb r3, [r1]
-   		mov r3, #0x30
-   		strb r3, [r1]
-   		mov r3, #0x2e
-   		strb r3, [r1]
-   		mov r3, #0x2b
-   		strb r3, [r1]
-   		mov r3, #0x27
-   		strb r3, [r1]
-   		mov r3, #0x23
-   		strb r3, [r1]
-   		mov r3, #0x1e
-   		strb r3, [r1]
-   		mov r3, #0x19
-   		strb r3, [r1]
-   		mov r3, #0x14
-   		strb r3, [r1]
-   		mov r3, #0xf
-   		strb r3, [r1]
-   		mov r3, #0xb
-   		strb r3, [r1]
-   		mov r3, #0x7
-   		strb r3, [r1]
-   		mov r3, #0x4
-   		strb r3, [r1]
-   		mov r3, #0x2
-   		strb r3, [r1]
-   		mov r3, #0x0
-   		strb r3, [r1]
-   		mov r3, #0x0
-   		strb r3, [r1]
-   		mov r3, #0x0
-   		strb r3, [r1]
-   		mov r3, #0x2
-   		strb r3, [r1]
-   		mov r3, #0x4
-   		strb r3, [r1]
-   		mov r3, #0x7
-   		strb r3, [r1]
-   		mov r3, #0xb
-   		strb r3, [r1]
-   		mov r3, #0xf
-   		strb r3, [r1]
-   		mov r3, #0x14
-   		strb r3, [r1]
-        b inner_loop
+
+		;move value in P4OUT for DAC
+		ldrb r6, [r1, r8] ;r8 is counter variable
+   		strb r6, [r2]
+   		;increment DAC pointer (1 byte)
+		add r8, r8, #1
+		and r8, r8, #0x1F
+   		;start ADC conversion
+   		strb r5, [r3]
+   		;14 cycles to let conversion happen
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		;read conversion from ADC14MEM0
+   		ldrh r7, [r4]
+   		;store conversion into pointer arguments
+   		strh r7, [r0, r9]
+   		;increment data table index (2 bytes)
+   		add r9, r9, #2
+   		ands r9, r9, #0x3F
+   		bne inner_loop
+		mov pc, lr
 
