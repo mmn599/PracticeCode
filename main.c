@@ -42,14 +42,20 @@ void ADC_Init() {
 	ADC14_setSampleHoldTrigger(ADC_TRIGGER_ADCSC, false);
 	ADC14_setSampleHoldTime(ADC_PULSE_WIDTH_4, ADC_PULSE_WIDTH_4);
 
-	ADC14_configureSingleSampleMode(ADC_MEM0, false);
-	ADC14_configureConversionMemory(ADC_MEM0, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A0, false);
+	ADC14_configureMultiSequenceMode(ADC_MEM0, ADC_MEM31, false);
 
-	ADC14_enableSampleTimer(ADC_MANUAL_ITERATION);
+	ADC14_configureConversionMemory(ADC_MEM0 | ADC_MEM1 | ADC_MEM2 | ADC_MEM3 | ADC_MEM4 | ADC_MEM5 |
+			ADC_MEM6 | ADC_MEM7 | ADC_MEM8 | ADC_MEM9 | ADC_MEM10 | ADC_MEM11 |
+			ADC_MEM12 | ADC_MEM13 | ADC_MEM14 | ADC_MEM15 | ADC_MEM16 | ADC_MEM17 |
+			ADC_MEM18 | ADC_MEM19 | ADC_MEM20 | ADC_MEM21 | ADC_MEM22 | ADC_MEM23 |
+			ADC_MEM24 | ADC_MEM25 | ADC_MEM26 | ADC_MEM27 | ADC_MEM28 | ADC_MEM29 |
+			ADC_MEM30 | ADC_MEM31, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A0, false);
+
+	ADC14_enableSampleTimer(ADC_AUTOMATIC_ITERATION);
 	ADC14_setPowerMode(ADC_UNRESTRICTED_POWER_MODE);
 	ADC14_enableConversion();
-	ADC14_enableInterrupt(ADC_INT0);
-
+//	ADC14_enableInterrupt(ADC_INT0);
+//	ADC14_enableInterrupt(ADC_OV_INT);
 }
 
 
@@ -95,7 +101,6 @@ uint8_t DacTable_32[32] = {0x19,0x1e,0x23,0x27,0x2b,0x2e,0x30,0x32,
 		0x19,0x14,0xf,0xb,0x7,0x4,0x2,0x0,
 		0x0,0x0,0x2,0x4,0x7,0xb,0xf,0x14};
 
-
 void DMA_Init() {
     DMA_enableModule();
     DMA_setControlBase(controlTable);
@@ -135,10 +140,15 @@ void UART_Init() {
     UART_enableModule(EUSCI_A0_MODULE);
 }
 
+void sampleData();
 void sendDataUART();
+extern void dac_output(void);
+
 
 int main(void) {
     WDT_A_holdTimer();
+
+    ADC14CTL0 = 0;
 
     CS_Init();
     ADC_Init();
@@ -146,23 +156,11 @@ int main(void) {
 //    TimerA_Init();
     UART_Init();
 //    DMA_Init();
-
 //    Interrupt_enableInterrupt(INT_ADC14);
 //    Interrupt_enableMaster();
 //    Timer_A_startCounter(TIMER_A0_MODULE, TIMER_A_UP_MODE);
-
-    int dacIdx = 0;
     while(1) {
-    	uint16_t data_buff[32];
-    	for(dacIdx = 0; dacIdx < 32; dacIdx++) {
-    		P4OUT = DacTable_32[dacIdx];
-        	while(ADC14CTL0&0x00010000){};    // 1) wait for BUSY to be zero
-        	ADC14CTL0 |= 0x00000001;          // 2) start single conversion
-        	while((ADC14IFGR0&0x01) == 0){};  // 3) wait for ADC14IFG0
-        	uint32_t value = ADC14MEM0;          // 4) return result 0 to 16383
-       		data_buff[dacIdx] = value;
-    	}
-    	sendDataUART();
+    	dac_output();
     }
 
 }
@@ -180,10 +178,8 @@ void sendDataUART(uint16_t* data_buff) {
 	}
 }
 
-
-
 void adc14_isr(void) {
-	ADC14_clearInterruptFlag(ADC_INT0);
+//	ADC14_clearInterruptFlag(ADC_INT0);
 }
 
 
