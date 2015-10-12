@@ -99,8 +99,6 @@ uint8_t DacTable_32[32] = {0x19,0x1e,0x23,0x27,0x2b,0x2e,0x30,0x32,
 void DMA_Init() {
     DMA_enableModule();
     DMA_setControlBase(controlTable);
-
-
     DMA_assignChannel(DMA_CH0_TIMERA0CCR0);
     DMA_setChannelControl(UDMA_PRI_SELECT | DMA_CH0_TIMERA0CCR0,
             UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_128);
