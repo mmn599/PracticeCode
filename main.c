@@ -102,19 +102,10 @@ void DMA_Init() {
     DMA_assignChannel(DMA_CH0_TIMERA0CCR0);
     DMA_setChannelControl(UDMA_PRI_SELECT | DMA_CH0_TIMERA0CCR0,
             UDMA_SIZE_8 | UDMA_SRC_INC_8 | UDMA_DST_INC_NONE | UDMA_ARB_128);
-    DMA_setChannelTransfer(UDMA_PRI_SELECT | DMA_CH0_TIMERA0CCR0, UDMA_MODE_AUTO, DAC_TABLE, P4POINT, 128);
+    DMA_setChannelTransfer(UDMA_PRI_SELECT | DMA_CH0_TIMERA0CCR0, UDMA_MODE_AUTO, DAC_TABLE, P4POINT, 1);
     DMA_enableChannel(0);
     DMA_assignInterrupt(DMA_INT1, 0);
     Interrupt_enableInterrupt(INT_DMA_INT1);
-
-    /* Setting Control Indexes */
-    /*DMA_setChannelControl(UDMA_PRI_SELECT | DMA_CH7_ADC12C,
-        UDMA_SIZE_16 | UDMA_SRC_INC_NONE | UDMA_DST_INC_16 | UDMA_ARB_1);
-    DMA_setChannelTransfer(UDMA_PRI_SELECT | DMA_CH7_ADC12C,
-        UDMA_MODE_BASIC,
-        ADC_MEM0, adcRecBuffer,1);
-    DMA_assignInterrupt(DMA_INT2, 7);
-    Interrupt_enableInterrupt(INT_DMA_INT2);*/
 }
 
 const eUSCI_UART_Config uartConfig = {
