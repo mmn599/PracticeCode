@@ -84,16 +84,14 @@ void TimerA_Init() {
 
 const uint8_t* P4POINT = (uint8_t*) 0x40004C23;
 
-const uint16_t VALUE[1] = {0xFFFF};
-
 void DMA_Init(uint16_t* receiveBuffer, uint32_t size) {
     DMA_enableModule();
     DMA_setControlBase(controlTable);
     DMA_assignChannel(DMA_CH7_ADC12C);
     DMA_setChannelControl(UDMA_PRI_SELECT | DMA_CHANNEL_7,
             UDMA_SIZE_16 | UDMA_SRC_INC_NONE | UDMA_DST_INC_16 | UDMA_ARB_1024);
-    DMA_setChannelTransfer(UDMA_PRI_SELECT | DMA_CHANNEL_7,
-    		UDMA_MODE_BASIC, VALUE, receiveBuffer, 2);
+//    DMA_setChannelTransfer(UDMA_PRI_SELECT | DMA_CHANNEL_7,
+//    		UDMA_MODE_BASIC, 0, receiveBuffer, 2);
     DMA_enableChannel(7);
     DMA_assignInterrupt(DMA_INT1, 7);
     Interrupt_enableInterrupt(INT_DMA_INT1);
@@ -120,8 +118,10 @@ void UART_Init() {
 
 void sampleData();
 void sendDataUART();
-void outputAndSample(uint8_t*, uint16_t*, uint32_t);
-extern void dac_output(uint16_t*, uint8_t*);
+/*
+ * DAC Output and ADC Sampling routine. Inputs are output data table, DAC table, loops between, sample points
+ */
+extern void output_and_sample(uint16_t*, uint8_t*, uint32_t, uint32_t);
 
 const uint8_t DacTable_64[64] = {0x19,0x1b,0x1e,0x20,0x23,0x25,0x27,0x29,
 		0x2b,0x2c,0x2e,0x2f,0x30,0x31,0x32,0x32,
@@ -148,27 +148,14 @@ int main(void) {
     GPIO_Init();
 //    TimerA_Init();
     UART_Init();
-    DMA_Init(data_table, 64);
-    Interrupt_enableInterrupt(INT_ADC14);
-    Interrupt_enableMaster();
+//    DMA_Init(data_table, 64);
+//    Interrupt_enableInterrupt(INT_ADC14);
+//    Interrupt_enableMaster();
 //    Timer_A_startCounter(TIMER_A0_MODULE, TIMER_A_UP_MODE);
 
     while(1) {
-//    	dac_output(data_table, DacTable_32);
-    	outputAndSample(DacTable_64, data_table, 64);
-//    	sendDataUART(data_table);
+
     }
-
-}
-
-/**
- * control_table[0]
- */
-void outputAndSample(uint8_t* dac_table, uint8_t* control_table, uint16_t* data_table, uint32_t size) {
-
-}
-
-void outputAndSample(uint8_t* dac_table, uint16_t* data_table, uint32_t size) {
 
 }
 
