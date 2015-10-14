@@ -57,9 +57,9 @@ void CS_Init() {
     FlashCtl_setWaitState(FLASH_BANK1, 2);
     CS_startHFXT(false);
     //TODO: test whether this makes a difference (probably not)
-    CS_setDCOFrequency(CS_DCO_FREQUENCY_48);
+//    CS_setDCOFrequency(CS_DCO_FREQUENCY_48);
     CS_initClockSignal(CS_MCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    CS_initClockSignal(CS_HSMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
+//    CS_initClockSignal(CS_HSMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
 }
 
 void GPIO_Init() {
@@ -122,6 +122,7 @@ void sendDataUART();
  * DAC Output and ADC Sampling routine. Inputs are output data table, DAC table, loops between, sample points
  */
 extern void output_and_sample(uint16_t*, uint8_t*, uint32_t, uint32_t);
+extern void dacloop(uint16_t*, uint8_t*, uint32_t, uint32_t);
 
 const uint8_t DacTable_64[64] = {0x19,0x1b,0x1e,0x20,0x23,0x25,0x27,0x29,
 		0x2b,0x2c,0x2e,0x2f,0x30,0x31,0x32,0x32,
@@ -154,7 +155,8 @@ int main(void) {
 //    Timer_A_startCounter(TIMER_A0_MODULE, TIMER_A_UP_MODE);
 
     while(1) {
-
+//    	output_and_sample(data_table, DacTable_64, 3, 64);
+      	dacloop(data_table, DacTable_64, 3, 64);
     }
 
 }

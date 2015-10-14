@@ -1,4 +1,4 @@
-	.global output_and_sample
+	.global dacloop
 
 data_loc:
         .word 0x40004C23 ;P4OUT
@@ -10,7 +10,7 @@ data_loc:
 ;					int LOOPS_BETWEEN calculation
 ;					int sample points
 
-output_and_sample:
+dacloop:
 
 		push {r0-r12}
 
@@ -47,6 +47,9 @@ update_dac:
 		;move value in P4OUT for DAC
 		ldrb r9, [r1, r7]
    		strb r9, [r4] ;3 cycles due to pipelining
+   		add r7, r7, #1
+   		and r7, r7, r11
+		b update_dac
 
 trigger_check:
 		adds r10, r10, #0 ;if r10 is zero, we're supposed to trigger an ADC sample on this iteration
