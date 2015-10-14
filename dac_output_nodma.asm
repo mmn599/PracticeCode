@@ -73,7 +73,7 @@ memory_grab:
 		add r8, r8, #2 ;increments data pointer
 
 inc_pointers:
-		add r7, r7, #1
+   		add r7, r7, #1
 		and r7, r7, r11
 ;		subs r9, r8, r3
 ;		brne update_dac

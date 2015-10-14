@@ -23,7 +23,7 @@ void ADC_Init() {
 
 	ADC14_setResolution(ADC_14BIT);
 	ADC14_setSampleHoldTrigger(ADC_TRIGGER_ADCSC, false);
-	ADC14_setSampleHoldTime(ADC_PULSE_WIDTH_8, ADC_PULSE_WIDTH_8);
+	ADC14_setSampleHoldTime(ADC_PULSE_WIDTH_4, ADC_PULSE_WIDTH_4);
 
 	ADC14_configureSingleSampleMode(ADC_MEM0, false);
 
@@ -34,11 +34,6 @@ void ADC_Init() {
 	ADC14_enableConversion();
 	ADC14_enableInterrupt(ADC_INT0);
 //	ADC14_enableInterrupt(ADC_OV_INT);
-
-	/*
-	 * ADC14SHT0x and ADC14SHT1x bits in ADC14CTL0 control the interval of the sampling timer that defines the SAMPCON sample period sample.
-	 */
-
 	/*
 	 * 0b = ADC reference buffer on continuously
 	 * BIT 2 (ADC14REFBURST) in ADC14CTL1 register
@@ -53,11 +48,15 @@ void CS_Init() {
     CS_setExternalClockSourceFrequency(32000,48000000);
     PCM_setPowerState(PCM_AM_LDO_VCORE1);
     PCM_setCoreVoltageLevel(PCM_VCORE1);
+
+    FlashCtl_disableReadBuffering(FLASH_BANK0, FLASH_INSTRUCTION_FETCH);
+    FlashCtl_disableReadBuffering(FLASH_BANK0, FLASH_DATA_READ);
+    FlashCtl_disableReadBuffering(FLASH_BANK1, FLASH_INSTRUCTION_FETCH);
+    FlashCtl_disableReadBuffering(FLASH_BANK1, FLASH_DATA_READ);
+
     FlashCtl_setWaitState(FLASH_BANK0, 2);
     FlashCtl_setWaitState(FLASH_BANK1, 2);
     CS_startHFXT(false);
-    //TODO: test whether this makes a difference (probably not)
-//    CS_setDCOFrequency(CS_DCO_FREQUENCY_48);
     CS_initClockSignal(CS_MCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
 //    CS_initClockSignal(CS_HSMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
 }
@@ -122,9 +121,8 @@ void sendDataUART();
  * DAC Output and ADC Sampling routine. Inputs are output data table, DAC table, loops between, sample points
  */
 extern void output_and_sample(uint16_t*, uint8_t*, uint32_t, uint32_t);
-extern void dacloop(uint16_t*, uint8_t*, uint32_t, uint32_t);
 
-const uint8_t DacTable_64[64] = {0x19,0x1b,0x1e,0x20,0x23,0x25,0x27,0x29,
+uint8_t DacTable_64[64] = {0x19,0x1b,0x1e,0x20,0x23,0x25,0x27,0x29,
 		0x2b,0x2c,0x2e,0x2f,0x30,0x31,0x32,0x32,
 		0x32,0x32,0x32,0x31,0x30,0x2f,0x2e,0x2c,
 		0x2b,0x29,0x27,0x25,0x23,0x20,0x1e,0x1b,
@@ -133,7 +131,7 @@ const uint8_t DacTable_64[64] = {0x19,0x1b,0x1e,0x20,0x23,0x25,0x27,0x29,
 		0x0,0x0,0x0,0x1,0x2,0x3,0x4,0x6,
 		0x7,0x9,0xb,0xd,0xf,0x12,0x14,0x17};
 
-const uint8_t DacTable_32[32] = {0x19,0x1e,0x23,0x27,0x2b,0x2e,0x30,0x32,
+uint8_t DacTable_32[32] = {0x19,0x1e,0x23,0x27,0x2b,0x2e,0x30,0x32,
 0x32,0x32,0x30,0x2e,0x2b,0x27,0x23,0x1e,
 0x19,0x14,0xf,0xb,0x7,0x4,0x2,0x0,
 0x0,0x0,0x2,0x4,0x7,0xb,0xf,0x14};
