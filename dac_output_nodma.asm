@@ -69,7 +69,7 @@ no_memory_grab:
 		b inc_pointers
 memory_grab:
 		ldrh r9, [r12] ;load ADCMEM14 into r9
-		strh r9, [r1, r8] ;strh and ldrh only takes 3 cycles due to pipeline
+		strh r9, [r0, r8] ;strh and ldrh only takes 3 cycles due to pipeline
 		add r8, r8, #2 ;increments data pointer
 
 inc_pointers:

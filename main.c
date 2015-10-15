@@ -62,9 +62,9 @@ void CS_Init() {
 }
 
 void GPIO_Init() {
-	P4DIR = 0x3F; //make pins 0-5 out
+	P4DIR = 0xFF; //make pins 0-5 out
 	P4OUT = 0;
-	P3DIR = 0x05;
+	P3DIR = 0xFF;
 	P3OUT = 0;
 }
 
@@ -157,6 +157,8 @@ uint8_t DacTable_128[128] = {0x19,0x1a,0x1b,0x1d,0x1e,0x1f,0x20,0x21,
 
 uint16_t data_table[64];
 
+
+
 int main(void) {
     WDT_A_holdTimer();
 
@@ -173,10 +175,17 @@ int main(void) {
 
     while(1) {
 //    	output_and_sample(data_table, DacTable_64, 3, 64);
-      	simple_dac_output(data_table, DacTable_128);
+//      	simple_dac_output(data_table, DacTable_128);
+
+    	P3OUT = 0x0;
+    	P4OUT = 0xFF;
+    	P3OUT = 0x1;
+    	P3OUT = 0x0;
+    	P4OUT = 0x00;
     }
 
 }
+
 
 void sendDataUART(uint16_t* data_buff) {
 	int dataIdx = 0;

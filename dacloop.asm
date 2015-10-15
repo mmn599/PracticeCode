@@ -27,21 +27,24 @@ inner_loop:
 		;move value in P4OUT for DAC
 		ldrb r6, [r1, r8] ;r8 is counter variable
    		strb r6, [r2]
-
    		;start ADC conversion
    		;strb r5, [r3]
-
    		;increment DAC pointer (1 byte)
 		add r8, r8, #1
 		and r8, r8, #0x7F
+		nop
+		nop
+		nop
+		nop
 
-   		nop
-   		nop
-   		nop
-   		nop
-   		nop
-   		nop
-   		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
 
    		b inner_loop
 
