@@ -1,88 +1,58 @@
-	.global dacloop
+	.global simple_dac_output
 
+
+
+;uint8_t DacTable_32[32] = {0x19,0x1e,0x23,0x27,0x2b,0x2e,0x30,0x32,
+;		0x32,0x32,0x30,0x2e,0x2b,0x27,0x23,0x1e,
+;		0x19,0x14,0xf,0xb,0x7,0x4,0x2,0x0,
+;		0x0,0x0,0x2,0x4,0x7,0xb,0xf,0x14};
 data_loc:
-        .word 0x40004C23 ;P4OUT
-		.word 0x40012000 ;ADC14CTL
 		.word 0x40012098 ;ADC14MEM0
+		.word 0x40012000 ;ADC14CTL
+        .word 0x40004C23 ;p4out register
 
-;Inputs expected:	void* output_data
-;				 	void* dac_table
-;					int LOOPS_BETWEEN calculation
-;					int sample points
-
-dacloop:
-
-		push {r0-r12}
-
-		mov r11, r3
-		sub r11, r11, #1
-		lsl r3, r3, #1
-
-        ldr r4, [pc, #-28]
-        ldr r5, [pc, #-28]
-        ldr r12, [pc, #-28]
-        ldr r6, [r5]
-       	orr r6, r6, #1
-
-       	mov r7, #0
-       	mov r8, #0
-
-		mov r10, #0
-
-       	;r0 is output data table pointer
+        ;r0 is output data table pointer
         ;r1 is dac table pointer
-        ;r2 is LOOPS_BETWEEN calculation + 1
-        ;r3 is desired sample points * 2
-        ;r4 is P4OUT register
-        ;r5 contains ADC14CTL pointer
-        ;r6 contains trigger sampling ADC14CTL bit
-        ;r7 contains dac_table index
-        ;r8 contains data_table index
-        ;r9 contains temporary values
-		;r10 contains loop counter
-		;r11 is desired sample points - 1
-		;r12 contains ADC14MEM0
+simple_dac_output:
+        ldr r2, [pc, #-8] ;r2 contains P4OUT pointer
+        ldr r3, [pc, #-16] ;r3 contains ADC14CTL pointer
+        ldr r4, [pc, #-24] ;r4 contains ADC14MEM0 pointer
+        ldr r5, [r3]
+       	orr r5, r5, #1		;r4 sets the bit in ADC14CTL to enable conversions
+       	mov r8, #0
+       	mov r9, #0
 
-update_dac:
+inner_loop:
+
 		;move value in P4OUT for DAC
-		ldrb r9, [r1, r7]
-   		strb r9, [r4] ;3 cycles due to pipelining
-   		add r7, r7, #1
-   		and r7, r7, r11
-		b update_dac
+		ldrb r6, [r1, r8] ;r8 is counter variable
+   		strb r6, [r2]
 
-trigger_check:
-		adds r10, r10, #0 ;if r10 is zero, we're supposed to trigger an ADC sample on this iteration
-		beq trigger_sample
-no_trigger_sample:
-		nop
-		nop
-		b memory_check
-trigger_sample:
-		mov r10, r2	;sets r10 equal to the number of iterations between a sample trigger and a memory grab
-		strb r6, [r5]	;sets ADC14CTL[0] to 1 enabling conversion
+   		;start ADC conversion
+   		;strb r5, [r3]
 
-memory_check:
-		adds r10, r10, #-1
-		beq memory_grab
-no_memory_grab:
-		nop
-		nop
-		nop
-		b inc_pointers
-memory_grab:
-		ldrh r9, [r12] ;load ADCMEM14 into r9
-		strh r9, [r1, r8] ;strh and ldrh only takes 3 cycles due to pipeline
-		add r8, r8, #2 ;increments data pointer
+   		;increment DAC pointer (1 byte)
+		add r8, r8, #1
+		and r8, r8, #0x7F
 
-inc_pointers:
-		add r7, r7, #1
-		and r7, r7, r11
-;		subs r9, r8, r3
-;		brne update_dac
-		and r8, r8, #127
-		b update_dac
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
+   		nop
 
-cleanup:
-		pop {r0-r12}
+   		b inner_loop
+
+   		;read conversion from ADC14MEM0
+   		;ldrh r7, [r4]
+   		;store conversion into pointer arguments
+   		;strh r7, [r0, r9]
+   		;increment data table index (2 bytes)
+   		;add r9, r9, #2
+   		;ands r9, r9, #0x3F
+   		;bne inner_loop
+
 		mov pc, lr
+
