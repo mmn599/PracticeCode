@@ -53,10 +53,6 @@ extern unsigned long __STACK_END;
 
 
 /* External declarations for the interrupt handlers used by the application. */
-extern void dma_1_interrupt(void);
-extern void dma_2_interrupt(void);
-extern void timer_a_0_isr(void);
-extern void adc14_isr(void);
 /* To be added by user */
 
 
@@ -91,7 +87,7 @@ void (* const interruptVectors[])(void) =
     defaultISR,                             /* FLCTL ISR                 */
     defaultISR,                             /* COMP0 ISR                 */
     defaultISR,                             /* COMP1 ISR                 */
-	timer_a_0_isr,                             /* TA0_0 ISR                 */
+	defaultISR,                             /* TA0_0 ISR                 */
 	defaultISR,
 	defaultISR,                             /* TA1_0 ISR                 */
     defaultISR,                             /* TA1_N ISR                 */
@@ -107,7 +103,7 @@ void (* const interruptVectors[])(void) =
     defaultISR,                             /* EUSCIB1 ISR               */
     defaultISR,                             /* EUSCIB2 ISR               */
     defaultISR,                             /* EUSCIB3 ISR               */
-    adc14_isr,                             /* ADC14 ISR                 */
+    defaultISR,                             /* ADC14 ISR                 */
     defaultISR,                             /* T32_INT1 ISR              */
     defaultISR,                             /* T32_INT2 ISR              */
     defaultISR,                             /* T32_INTC ISR              */
@@ -115,8 +111,8 @@ void (* const interruptVectors[])(void) =
     defaultISR,                             /* RTC ISR                   */
     defaultISR,                             /* DMA_ERR ISR               */
     defaultISR,                             /* DMA_INT3 ISR              */
-    dma_2_interrupt,                             /* DMA_INT2 ISR              */
-    dma_1_interrupt,                        /* DMA_INT1 ISR              */
+    defaultISR,                             /* DMA_INT2 ISR              */
+    defaultISR,                        /* DMA_INT1 ISR              */
     defaultISR,                             /* DMA_INT0 ISR              */
     defaultISR,                             /* PORT1 ISR                 */
     defaultISR,                             /* PORT2 ISR                 */

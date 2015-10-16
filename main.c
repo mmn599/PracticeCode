@@ -193,7 +193,7 @@ int main(void) {
 
     while(1) {
 //    	output_and_sample(data_table, DacTable_64, 3, 64);
-      	simple_dac_output(data_table, DacTable_128);
+//      	simple_dac_output(data_table, DacTable_128);
     }
 
 }
