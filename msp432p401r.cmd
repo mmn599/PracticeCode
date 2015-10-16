@@ -66,7 +66,7 @@ SECTIONS
 {
     .intvecs:   > 0x00000000
     .text   :   > MAIN
-    .code_romToram: RUN_START(code_romToram_run_start), RUN_SIZE(code_romToram_run_size) > MAIN
+    .fir: load = MAIN, run = SRAM_CODE
     .const  :   > MAIN
     .cinit  :   > MAIN
     .pinit  :   > MAIN
