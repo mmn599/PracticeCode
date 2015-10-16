@@ -120,7 +120,10 @@ void sendDataUART();
 /*
  * DAC Output and ADC Sampling routine. Inputs are output data table, DAC table, loops between, sample points
  */
-extern void output_and_sample(uint16_t*, uint8_t*, uint32_t, uint32_t);
+
+
+#pragma RETAIN(functionRunInRam)
+#pragma CODE_SECTION(functionRunInRam,".code_romToram")
 extern void simple_dac_output(uint16_t*, uint8_t*);
 
 
@@ -158,6 +161,18 @@ uint8_t DacTable_128[128] = {0x19,0x1a,0x1b,0x1d,0x1e,0x1f,0x20,0x21,
 uint16_t data_table[64];
 
 
+/*
+ * Stuff for copying functions to ram
+ */
+typedef void ( *function_ptr_t )  ( void );
+
+//***** Global Data *****
+extern int8_t code_romToram_run_start;
+extern int8_t code_romToram_run_size;
+extern int8_t sram_data_run_start;
+extern int8_t sram_code_run_start;
+
+function_ptr_t functionPtr;
 
 int main(void) {
     WDT_A_holdTimer();
@@ -166,22 +181,19 @@ int main(void) {
     ADC14CTL0 = 0;
     ADC_Init();
     GPIO_Init();
-//    TimerA_Init();
     UART_Init();
-//    DMA_Init(data_table, 64);
-//    Interrupt_enableInterrupt(INT_ADC14);
-//    Interrupt_enableMaster();
-//    Timer_A_startCounter(TIMER_A0_MODULE, TIMER_A_UP_MODE);
+
+    // Copy ROM to RAM
+    memcpy((void *)_symval(&sram_data_run_start),
+          (const void *)_symval(&code_romToram_run_start),
+          _symval(&code_romToram_run_size));
+
+    functionPtr = (function_ptr_t)(_symval(&sram_code_run_start) + 1);
+    functionPtr();
 
     while(1) {
 //    	output_and_sample(data_table, DacTable_64, 3, 64);
-//      	simple_dac_output(data_table, DacTable_128);
-
-    	P3OUT = 0x0;
-    	P4OUT = 0xFF;
-    	P3OUT = 0x1;
-    	P3OUT = 0x0;
-    	P4OUT = 0x00;
+      	simple_dac_output(data_table, DacTable_128);
     }
 
 }
@@ -203,18 +215,3 @@ void sendDataUART(uint16_t* data_buff) {
 void adc14_isr(void) {
 	ADC14_clearInterruptFlag(ADC_INT0);
 }
-
-
-void timer_a_0_isr(void) {
-
-}
-
-void dma_1_interrupt(void) {
-	int source = 0;
-	source++;
-}
-
-void dma_2_interrupt(void) {
-
-}
-

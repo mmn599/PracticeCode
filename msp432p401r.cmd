@@ -66,6 +66,7 @@ SECTIONS
 {
     .intvecs:   > 0x00000000
     .text   :   > MAIN
+    .code_romToram: RUN_START(code_romToram_run_start), RUN_SIZE(code_romToram_run_size) > MAIN
     .const  :   > MAIN
     .cinit  :   > MAIN
     .pinit  :   > MAIN
@@ -73,6 +74,8 @@ SECTIONS
     .flashMailbox : > 0x00200000
 
     .vtable :   > 0x20000000
+    .sram_data: RUN_START(sram_data_run_start) > SRAM_DATA
+	.sram_code: RUN_START(sram_code_run_start) > SRAM_CODE
     .data   :   > SRAM_DATA
     .bss    :   > SRAM_DATA
     .sysmem :   > SRAM_DATA
