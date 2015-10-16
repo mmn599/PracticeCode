@@ -1,26 +1,41 @@
-	.global output_and_sample
-
-data_loc:
-        .word 0x40004C23 ;P4OUT
-		.word 0x40012000 ;ADC14CTL
-		.word 0x40012098 ;ADC14MEM0
+		.sect ".fir"
 
 ;Inputs expected:	void* output_data
 ;				 	void* dac_table
 ;					int LOOPS_BETWEEN calculation
 ;					int sample points
 
-output_and_sample:
+fir:
+		nop
 
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+		.text
+
+;Inputs expected:	void* output_data
+;				 	void* dac_table
+;					int LOOPS_BETWEEN calculation
+;					int sample points
+
+		.global output_and_sample
+
+output_and_sample:
+		.label fir_src
 		push {r0-r12}
 
 		mov r11, r3
 		sub r11, r11, #1
 		lsl r3, r3, #1
 
-        ldr r4, [pc, #-28]
-        ldr r5, [pc, #-28]
-        ldr r12, [pc, #-28]
+        ldr r4, dport
+        ldr r5, actl
+        ldr r12, amem
         ldr r6, [r5]
        	orr r6, r6, #1
 
@@ -83,3 +98,39 @@ inc_pointers:
 cleanup:
 		pop {r0-r12}
 		mov pc, lr
+
+amem	.word 0x40012098 ;ADC14MEM0
+actl	.word 0x40012000 ;ADC14CTL
+dport	.word 0x40004C23 ;p4out register
+
+		.label fir_end
+
+
+;---------------------------------------------------------------------------
+;	copy .fir section from flash to ram
+;---------------------------------------------------------------------------
+
+		.text
+
+		.global copy_to_ram
+
+copy_to_ram:
+		ldr r4, fir_s
+		ldr r5, fir_e
+		ldr r7, fir_a
+		sub r4, r4, #1
+		sub r7, r7, #1
+$1:		cmp r4, r5
+		bcs theend
+		ldrh r6, [r4], #2 ;copy fir routine to its run address
+		strh r6, [r7], #2
+		b $1
+
+;---------------------------------------------------------------------------
+;	jump to fir routine, now in flash
+;---------------------------------------------------------------------------
+theend:
+		B fir
+fir_a 	.word fir
+fir_s 	.word fir_src
+fir_e 	.word fir_end
