@@ -13,14 +13,11 @@ fir:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
 		.text
 
 ;Inputs expected:	void* output_data
 ;				 	void* dac_table
-;					int LOOPS_BETWEEN calculation
+;					pointer to function in ram
 ;					int sample points
 
 		.global output_and_sample
@@ -29,7 +26,7 @@ output_and_sample:
 		.label fir_src
 		push {r0-r12}
 
-		mov r2, #2
+		mov r2, #3			;LOOPS_BETWEEN calculation
 
 		mov r11, r3
 		sub r11, r11, #1
@@ -64,16 +61,6 @@ update_dac:
 		;move value in P4OUT for DAC
 		ldrb r9, [r1, r7]
    		strb r9, [r4] ;3 cycles due to pipelining
-		add r7, r7, #1
-		and r7, r7, r11
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		b update_dac
 
 trigger_check:
 		adds r10, r10, #0 ;if r10 is zero, we're supposed to trigger an ADC sample on this iteration
@@ -102,10 +89,8 @@ memory_grab:
 inc_pointers:
    		add r7, r7, #1
 		and r7, r7, r11
-;		subs r9, r8, r3
-;		brne update_dac
-		and r8, r8, #127
-		b update_dac
+		subs r9, r8, r3
+		brne update_dac
 
 cleanup:
 		pop {r0-r12}
@@ -117,16 +102,18 @@ dport	.word 0x40004C23 ;p4out register
 
 		.label fir_end
 
-
 ;---------------------------------------------------------------------------
-;	copy .fir section from flash to ram
+;	sampleLoop: mov PC to value specified by RAM pointer and execute the function
 ;---------------------------------------------------------------------------
-
-		.text
 
 		.global sampleLoop
+sampleLoop:
 		mov pc, r2
 
+
+;---------------------------------------------------------------------------
+;	copy_to_ram: copy sample loop code from flash to ram
+;---------------------------------------------------------------------------
 
 		.global copy_to_ram
 

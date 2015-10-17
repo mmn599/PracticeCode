@@ -65,8 +65,6 @@ void ADC_Init() {
 	ADC14_enableSampleTimer(ADC_AUTOMATIC_ITERATION);
 	ADC14_setPowerMode(ADC_UNRESTRICTED_POWER_MODE);
 	ADC14_enableConversion();
-	ADC14_enableInterrupt(ADC_INT0);
-//	ADC14_enableInterrupt(ADC_OV_INT);
 	/*
 	 * 0b = ADC reference buffer on continuously
 	 * BIT 2 (ADC14REFBURST) in ADC14CTL1 register
@@ -81,25 +79,19 @@ void CS_Init() {
     CS_setExternalClockSourceFrequency(32000,48000000);
     PCM_setPowerState(PCM_AM_LDO_VCORE1);
     PCM_setCoreVoltageLevel(PCM_VCORE1);
-    FlashCtl_disableReadBuffering(FLASH_BANK0, FLASH_INSTRUCTION_FETCH);
-    FlashCtl_disableReadBuffering(FLASH_BANK0, FLASH_DATA_READ);
-    FlashCtl_disableReadBuffering(FLASH_BANK1, FLASH_INSTRUCTION_FETCH);
-    FlashCtl_disableReadBuffering(FLASH_BANK1, FLASH_DATA_READ);
     FlashCtl_setWaitState(FLASH_BANK0, 2);
     FlashCtl_setWaitState(FLASH_BANK1, 2);
     CS_startHFXT(false);
     CS_initClockSignal(CS_MCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_SMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_2);
 }
 
 void GPIO_Init() {
 	P4DIR = 0xFF; //make pins 0-5 out
 	P4OUT = 0;
-	P3DIR = 0xFF;
-	P3OUT = 0;
 }
 
-const Timer_A_UpModeConfig upConfig =
-{
+const Timer_A_UpModeConfig upConfig ={
         TIMER_A_CLOCKSOURCE_SMCLK,              // SMCLK Clock Source
         TIMER_A_CLOCKSOURCE_DIVIDER_1,          // SMCLK/1 = 3MHz
         5000,                            		// 5000 tick period
@@ -128,8 +120,8 @@ void DMA_Init(uint16_t* receiveBuffer, uint32_t size) {
 
 const eUSCI_UART_Config uartConfig = {
             EUSCI_A_UART_CLOCKSOURCE_SMCLK,          // SMCLK Clock Source
-			312,                                      // BRDIV = 78
-            8,                                       // UCxBRF = 2
+			156,                                      // BRDIV = 78
+            4,                                       // UCxBRF = 2
             0,                                       // UCxBRS = 0
             EUSCI_A_UART_NO_PARITY,                  // No Parity
             EUSCI_A_UART_LSB_FIRST,                  // MSB First
@@ -153,7 +145,10 @@ typedef void ( *sample_function_ptr_t ) (uint16_t*, uint8_t*, uint32_t, uint32_t
 //extern void dacOutput(uint16_t*, uint8_t*);
 extern sample_function_ptr_t copy_to_ram();
 extern void output_and_sample(uint16_t*, uint8_t*, uint32_t, uint32_t);
-extern void sampleLoop(uint16_t*, uint8_t*, uint32_t, sample_function_ptr_t);
+
+/* output data table, dac table, ram function pointer, number of sample points */
+extern void sampleLoop(uint16_t*, uint8_t*, sample_function_ptr_t, uint32_t);
+
 
 int main(void) {
     WDT_A_holdTimer();
@@ -164,17 +159,22 @@ int main(void) {
     GPIO_Init();
     UART_Init();
 
-    void* sampleFunctionLocation = copy_to_ram();
+    sample_function_ptr_t sampleFunctionPointer = copy_to_ram();
 
-    while(1) 
+//    sampleLoop(data_table, DacTable_64, sampleFunctionPointer, 64);
+    output_and_sample(data_table, DacTable_64, sampleFunctionPointer, 64);
+
+    while(1) {
+        sendDataUART(data_table, 64);
     }
+
 
 }
 
 
-void sendDataUART(uint16_t* data_buff) {
+void sendDataUART(uint16_t* data_buff, uint32_t data_size) {
 	int dataIdx = 0;
-	for(dataIdx = 0; dataIdx < 32; dataIdx++) {
+	for(dataIdx = 0; dataIdx < data_size; dataIdx++) {
 		uint32_t value = data_buff[dataIdx];
 		int i;
 		UART_transmitData(EUSCI_A0_MODULE, 'a');
