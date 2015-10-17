@@ -29,6 +29,8 @@ output_and_sample:
 		.label fir_src
 		push {r0-r12}
 
+		mov r2, #2
+
 		mov r11, r3
 		sub r11, r11, #1
 		lsl r3, r3, #1
@@ -62,6 +64,16 @@ update_dac:
 		;move value in P4OUT for DAC
 		ldrb r9, [r1, r7]
    		strb r9, [r4] ;3 cycles due to pipelining
+		add r7, r7, #1
+		and r7, r7, r11
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		b update_dac
 
 trigger_check:
 		adds r10, r10, #0 ;if r10 is zero, we're supposed to trigger an ADC sample on this iteration
@@ -112,14 +124,20 @@ dport	.word 0x40004C23 ;p4out register
 
 		.text
 
+		.global sampleLoop
+		mov pc, r2
+
+
 		.global copy_to_ram
 
 copy_to_ram:
+		push {r4,r5,r7}
 		ldr r4, fir_s
 		ldr r5, fir_e
 		ldr r7, fir_a
-		sub r4, r4, #1
-		sub r7, r7, #1
+		sub r4, r4, #1 ;TODO: why?
+		sub r7, r7, #1 ;TODO: why?
+		mov r0, r7
 $1:		cmp r4, r5
 		bcs theend
 		ldrh r6, [r4], #2 ;copy fir routine to its run address
@@ -130,7 +148,8 @@ $1:		cmp r4, r5
 ;	jump to fir routine, now in flash
 ;---------------------------------------------------------------------------
 theend:
-		B fir
+		pop {r4,r5,r7}
+		mov pc, lr
 fir_a 	.word fir
 fir_s 	.word fir_src
 fir_e 	.word fir_end
