@@ -56,7 +56,7 @@ void ADC_Init() {
 
 	ADC14_setResolution(ADC_14BIT);
 	ADC14_setSampleHoldTrigger(ADC_TRIGGER_ADCSC, false);
-	ADC14_setSampleHoldTime(ADC_PULSE_WIDTH_4, ADC_PULSE_WIDTH_4);
+	ADC14_setSampleHoldTime(ADC_PULSE_WIDTH_16, ADC_PULSE_WIDTH_16);
 
 	ADC14_configureSingleSampleMode(ADC_MEM0, false);
 
@@ -81,17 +81,14 @@ void CS_Init() {
     CS_setExternalClockSourceFrequency(32000,48000000);
     PCM_setPowerState(PCM_AM_LDO_VCORE1);
     PCM_setCoreVoltageLevel(PCM_VCORE1);
-
-    FlashCtl_enableReadBuffering(FLASH_BANK0, FLASH_INSTRUCTION_FETCH);
-    FlashCtl_enableReadBuffering(FLASH_BANK0, FLASH_DATA_READ);
-    FlashCtl_enableReadBuffering(FLASH_BANK1, FLASH_INSTRUCTION_FETCH);
-    FlashCtl_enableReadBuffering(FLASH_BANK1, FLASH_DATA_READ);
-
+    FlashCtl_disableReadBuffering(FLASH_BANK0, FLASH_INSTRUCTION_FETCH);
+    FlashCtl_disableReadBuffering(FLASH_BANK0, FLASH_DATA_READ);
+    FlashCtl_disableReadBuffering(FLASH_BANK1, FLASH_INSTRUCTION_FETCH);
+    FlashCtl_disableReadBuffering(FLASH_BANK1, FLASH_DATA_READ);
     FlashCtl_setWaitState(FLASH_BANK0, 2);
     FlashCtl_setWaitState(FLASH_BANK1, 2);
     CS_startHFXT(false);
     CS_initClockSignal(CS_MCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
-//    CS_initClockSignal(CS_HSMCLK, CS_HFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
 }
 
 void GPIO_Init() {
@@ -151,9 +148,12 @@ void UART_Init() {
 void sampleData();
 void sendDataUART();
 
+typedef void ( *sample_function_ptr_t ) (uint16_t*, uint8_t*, uint32_t, uint32_t);
+
 //extern void dacOutput(uint16_t*, uint8_t*);
-extern void copy_to_ram(uint16_t*, uint8_t*, uint32_t, uint32_t);
+extern sample_function_ptr_t copy_to_ram();
 extern void output_and_sample(uint16_t*, uint8_t*, uint32_t, uint32_t);
+extern void sampleLoop(uint16_t*, uint8_t*, uint32_t, sample_function_ptr_t);
 
 int main(void) {
     WDT_A_holdTimer();
@@ -164,10 +164,11 @@ int main(void) {
     GPIO_Init();
     UART_Init();
 
-	copy_to_ram(data_table, DacTable_64, 2, 64);
+    void* sampleFunctionLocation = copy_to_ram();
 
     while(1) {
-
+//    	outputAndSampleRam(data_table, DacTable_64, 2, 64);
+    	sampleLoop(data_table, DacTable_64, sampleFunctionLocation, 64);
     }
 
 }
