@@ -26,7 +26,7 @@ output_and_sample:
 		.label fir_src
 		push {r0-r12}
 
-		mov r2, #3			;LOOPS_BETWEEN calculation
+		mov r2, #2			;LOOPS_BETWEEN calculation
 
 		mov r11, r3
 		sub r11, r11, #1
@@ -89,8 +89,11 @@ memory_grab:
 inc_pointers:
    		add r7, r7, #1
 		and r7, r7, r11
+		;and r8, r8, #0x3F
+		;b update_dac
 		subs r9, r8, r3
 		brne update_dac
+
 
 cleanup:
 		pop {r0-r12}
