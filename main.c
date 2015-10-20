@@ -1,5 +1,6 @@
 #include "driverlib.h"
 #include <math.h>
+#include "dsp.h"
 
 #define NUM_DATA 128
 
@@ -137,7 +138,7 @@ extern sample_function_ptr_t copy_to_ram();
 extern void output_and_sample(uint16_t*, uint8_t*, sample_function_ptr_t, uint32_t);
 extern void sampleLoop(uint16_t*, uint8_t*, sample_function_ptr_t, uint32_t);
 
-void sendDataUART(uint16_t* data_buff, float* power_k, uint32_t data_size) {
+void sendFloatDFTDataUART(uint16_t* data_buff, float* power_k, uint32_t data_size) {
 	int dataIdx = 0;
 	for(dataIdx = 0; dataIdx < data_size; dataIdx++) {
 		uint32_t value = data_buff[dataIdx];
@@ -159,113 +160,7 @@ void sendDataUART(uint16_t* data_buff, float* power_k, uint32_t data_size) {
 	}
 }
 
-/**
- * Fixed point numbers
- * Num = Value * 2^-SCALE
- */
-
-/* FIXED_COS_TABLE[(k*n)%data_size]
- * ex. FIXED_COS_TABLE[1] = cos(2pi * 1/data_size) = cos(2pi * (1 + data_size)/data_size) * 2^SCALE
- */
-uint32_t FIXED_COS_TABLE[NUM_DATA] = {};
-
-uint32_t FIXED_SIN_TABLE[NUM_DATA] = {};
-
-#define SCALE 8
-
-void dft(uint16_t* data, uint32_t data_size, uint32_t* realresults, uint32_t* imagresults, uint32_t powerresults) {
-	uint16_t i = 0;
-
-	//adjust values to fixed point notation
-	uint32_t fixed_data[data_size];
-	for(i=0;i<data_size;i++) {
-		fixed_data[i] = data<<SCALE;
-	}
-
-	//calculate mean of data to renormalize
-	uint32_t sum = 0;
-	for(i=0;i<data_size;i++) {
-		sum += fixed_data[i];
-	}
-	uint32_t mean = sum/fixed_data;
-
-	//calculate DFT coefficients
-	uint16_t k;
-	for(k=0;k<data_size;k++) {
-		uint16_t n;
-		uint32_t real_sum = 0;
-		uint32_t imag_sum = 0;
-		for(n=0;n<data_size;n++) {
-			uint32_t n_value = fixed_data[i] - mean;
-			uint32_t cos_value = FIXED_COS_TABLE[(k*n)%data_size];
-			uint32_t sin_value = FIXED_SIN_TABLE[(k*n)%data_size];
-			real_sum += n_value*cos_value;
-			imag_sum += n_value*sin_value;
-		}
-		//To get floating point value, multiply these numbers by 2^-16. (2^8 scaling for data, 2^8 scaling for sinusoids)
-		realresults[k] = real_sum;
-		imagresults[k] = imag_sum;
-		powerresults[k] = sqrt(real_sum*real_sum + imag_sum*imag_sum);
-	}
-}
-
-void dft(uint16_t* data, uint32_t data_size, float* realresults, float* imagresults, float* powerresults) {
-	int i = 0;
-	//calculate mean of data to renormalize
-	float sum = 0;
-	for(i=0;i<data_size;i++) {
-		sum = sum + (float)data[i];
-	}
-	float mean = sum/(float)data_size;
-
-	//calculate DFT coefficients
-	int k;
-	for(k=0;k<data_size;k++) {
-		int n;
-		float real_sum = 0;
-		float imag_sum = 0;
-		for(n=0;n<data_size;n++) {
-			float n_value = (float)(int16_t)data[n] - mean;
-			float cos_value = cos(2.0*3.14159*(float)k*(float)n/(float)data_size);
-			float sin_value = sin(2.0*3.14159*(float)k*(float)n/(float)data_size);
-			real_sum += n_value*cos_value;
-			imag_sum += n_value*sin_value;
-		}
-		realresults[k] = real_sum;
-		imagresults[k] = imag_sum;
-		float val = sqrtf(real_sum*real_sum + imag_sum*imag_sum);
-		powerresults[k] = val;
-	}
-}
-
-float fixed_goertzels(uint16_t* data_buff, uint32_t data_size) {
-	int k = (int)(0.5 + (float)NUM_DATA*28250.0/915000.0);
-	float w = 2.0*3.141592/(float)NUM_DATA*(float)k;
-	float cosvalue = cos(w);
-	float sinevalue = sin(w);
-	float coeff = 2*cosvalue;
-
-	float q0 = 	0;
-	float q1 = 0;
-	float q2 = 0;
-
-	int i;
-	for(i=0;i<NUM_DATA;i++) {
-		q0 = coeff*q1 - q2 + data_buff[i];
-		q2 = q1;
-		q1 = q0;
-	}
-
-	float real = (q1 - q2*cosvalue);
-	float imag = q2*sinevalue;
-	float result = sqrtf(real*real + imag*imag);
-
-	return result;
-}
-
-
-
-	int main(void) {
+int main(void) {
     WDT_A_holdTimer();
 
     CS_Init();
@@ -276,16 +171,26 @@ float fixed_goertzels(uint16_t* data_buff, uint32_t data_size) {
 
     FPU_enableModule();
 
-    sample_function_ptr_t sampleFunctionPointer = copy_to_ram();
 
     float imagresults[NUM_DATA];
 	float realresults[NUM_DATA];
 	float powerresults[NUM_DATA];
+	float real;
+	float imag;
+	float power;
 	uint16_t data_table[NUM_DATA];
 
     while(1) {
-    	sampleLoop(data_table, DacTable_128_1_3_5_7, sampleFunctionPointer, NUM_DATA);
-      	dft(data_table, NUM_DATA, realresults, imagresults, powerresults);
-      	sendDataUART(data_table, powerresults, NUM_DATA);
+
+    	DacTable_128_1[0];
+
+    	int i = 0;
+
+        sample_function_ptr_t sampleFunctionPointer = copy_to_ram();
+
+    	sampleLoop(data_table, DacTable_128_1, sampleFunctionPointer, NUM_DATA);
+//      	dft_float(data_table, NUM_DATA, realresults, imagresults, powerresults);
+//      	goertzels_float(data_table, NUM_DATA, 2, &real, &imag);
+//      	sendFloatDFTDataUART(data_table, powerresults, NUM_DATA);
     }
 }

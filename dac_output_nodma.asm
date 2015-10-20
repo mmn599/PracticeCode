@@ -102,6 +102,7 @@ cleanup:
 amem	.word 0x40012098 ;ADC14MEM0
 actl	.word 0x40012000 ;ADC14CTL
 dport	.word 0x40004C23 ;p4out register
+cport 	.word 0x40004C22
 
 		.label fir_end
 
