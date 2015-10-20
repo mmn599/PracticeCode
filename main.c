@@ -173,42 +173,6 @@ uint32_t FIXED_SIN_TABLE[NUM_DATA] = {};
 
 #define SCALE 8
 
-void dft(uint16_t* data, uint32_t data_size, uint32_t* realresults, uint32_t* imagresults, uint32_t powerresults) {
-	uint16_t i = 0;
-
-	//adjust values to fixed point notation
-	uint32_t fixed_data[data_size];
-	for(i=0;i<data_size;i++) {
-		fixed_data[i] = data<<SCALE;
-	}
-
-	//calculate mean of data to renormalize
-	uint32_t sum = 0;
-	for(i=0;i<data_size;i++) {
-		sum += fixed_data[i];
-	}
-	uint32_t mean = sum/fixed_data;
-
-	//calculate DFT coefficients
-	uint16_t k;
-	for(k=0;k<data_size;k++) {
-		uint16_t n;
-		uint32_t real_sum = 0;
-		uint32_t imag_sum = 0;
-		for(n=0;n<data_size;n++) {
-			uint32_t n_value = fixed_data[i] - mean;
-			uint32_t cos_value = FIXED_COS_TABLE[(k*n)%data_size];
-			uint32_t sin_value = FIXED_SIN_TABLE[(k*n)%data_size];
-			real_sum += n_value*cos_value;
-			imag_sum += n_value*sin_value;
-		}
-		//To get floating point value, multiply these numbers by 2^-16. (2^8 scaling for data, 2^8 scaling for sinusoids)
-		realresults[k] = real_sum;
-		imagresults[k] = imag_sum;
-		powerresults[k] = sqrt(real_sum*real_sum + imag_sum*imag_sum);
-	}
-}
-
 void dft(uint16_t* data, uint32_t data_size, float* realresults, float* imagresults, float* powerresults) {
 	int i = 0;
 	//calculate mean of data to renormalize
@@ -284,8 +248,8 @@ float fixed_goertzels(uint16_t* data_buff, uint32_t data_size) {
 	uint16_t data_table[NUM_DATA];
 
     while(1) {
-    	sampleLoop(data_table, DacTable_128_1_3_5_7, sampleFunctionPointer, NUM_DATA);
-      	dft(data_table, NUM_DATA, realresults, imagresults, powerresults);
-      	sendDataUART(data_table, powerresults, NUM_DATA);
+    	sampleLoop(data_table, DacTable_128_1, sampleFunctionPointer, NUM_DATA);
+//      	dft(data_table, NUM_DATA, realresults, imagresults, powerresults);
+//      	sendDataUART(data_table, powerresults, NUM_DATA);
     }
 }
