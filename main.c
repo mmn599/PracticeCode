@@ -137,7 +137,29 @@ extern sample_function_ptr_t copy_to_ram();
 extern void output_and_sample(uint16_t*, uint8_t*, sample_function_ptr_t, uint32_t);
 extern void sampleLoop(uint16_t*, uint8_t*, sample_function_ptr_t, uint32_t);
 
-void sendDataUART(uint16_t* data_buff, float* power_k, uint32_t data_size) {
+void sendFloatDataUART(uint16_t* data_buff, uint32_t* power_k, uint32_t data_size) {
+	int dataIdx = 0;
+	for(dataIdx = 0; dataIdx < data_size; dataIdx++) {
+		uint32_t value = data_buff[dataIdx];
+		int i;
+		UART_transmitData(EUSCI_A0_MODULE, 'a');
+		for(i=0;i<4;i++) {
+	    	uint8_t data_byte = value>>(i*8);
+	    	UART_transmitData(EUSCI_A0_MODULE, data_byte);
+		}
+	}
+	for(dataIdx = 0; dataIdx < data_size; dataIdx++) {
+		uint32_t value = power_k[dataIdx];
+		int i;
+		UART_transmitData(EUSCI_A0_MODULE, 'a');
+		for(i=0;i<4;i++) {
+		    uint8_t data_byte = value>>(i*8);
+		    UART_transmitData(EUSCI_A0_MODULE, data_byte);
+		}
+	}
+}
+
+void sendFloatDataUART(uint16_t* data_buff, float* power_k, uint32_t data_size) {
 	int dataIdx = 0;
 	for(dataIdx = 0; dataIdx < data_size; dataIdx++) {
 		uint32_t value = data_buff[dataIdx];
@@ -159,21 +181,7 @@ void sendDataUART(uint16_t* data_buff, float* power_k, uint32_t data_size) {
 	}
 }
 
-/**
- * Fixed point numbers
- * Num = Value * 2^-SCALE
- */
-
-/* FIXED_COS_TABLE[(k*n)%data_size]
- * ex. FIXED_COS_TABLE[1] = cos(2pi * 1/data_size) = cos(2pi * (1 + data_size)/data_size) * 2^SCALE
- */
-uint32_t FIXED_COS_TABLE[NUM_DATA] = {};
-
-uint32_t FIXED_SIN_TABLE[NUM_DATA] = {};
-
-#define SCALE 8
-
-void dft(uint16_t* data, uint32_t data_size, float* realresults, float* imagresults, float* powerresults) {
+void dft_float(uint16_t* data, uint32_t data_size, float* realresults, float* imagresults, float* powerresults) {
 	int i = 0;
 	//calculate mean of data to renormalize
 	float sum = 0;
@@ -202,7 +210,7 @@ void dft(uint16_t* data, uint32_t data_size, float* realresults, float* imagresu
 	}
 }
 
-float fixed_goertzels(uint16_t* data_buff, uint32_t data_size) {
+void float_goertzels(uint16_t* data_buff, uint32_t data_size, float real, float imag) {
 	int k = (int)(0.5 + (float)NUM_DATA*28250.0/915000.0);
 	float w = 2.0*3.141592/(float)NUM_DATA*(float)k;
 	float cosvalue = cos(w);
@@ -220,16 +228,13 @@ float fixed_goertzels(uint16_t* data_buff, uint32_t data_size) {
 		q1 = q0;
 	}
 
-	float real = (q1 - q2*cosvalue);
-	float imag = q2*sinevalue;
-	float result = sqrtf(real*real + imag*imag);
-
-	return result;
+	*real = (q1 - q2*cosvalue);
+	*imag = q2*sinevalue;
 }
 
 
 
-	int main(void) {
+int main(void) {
     WDT_A_holdTimer();
 
     CS_Init();
@@ -249,7 +254,7 @@ float fixed_goertzels(uint16_t* data_buff, uint32_t data_size) {
 
     while(1) {
     	sampleLoop(data_table, DacTable_128_1, sampleFunctionPointer, NUM_DATA);
-//      	dft(data_table, NUM_DATA, realresults, imagresults, powerresults);
-//      	sendDataUART(data_table, powerresults, NUM_DATA);
+      	dft(data_table, NUM_DATA, realresults, imagresults, powerresults);
+      	sendDataUART(data_table, powerresults, NUM_DATA);
     }
 }
