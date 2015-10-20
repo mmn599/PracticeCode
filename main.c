@@ -209,15 +209,8 @@ void goertzels_float(uint16_t* data_buff, uint32_t data_size, float* real, float
 	}
 
 
-	float yreal = q0 - cosvalue*q1;
-	float yimag = sinvalue*q1;
-
-	*real = yreal*cosvalue + yimag*sinvalue;
-	*imag = yimag*cosvalue - yreal*sinvalue;
-
-
-//	*real = (q1 - q2*cosvalue);
-//	*imag = q2*sinvalue;
+	*real = (q1*cosvalue - q2);
+	*imag = q1*sinvalue;
 }
 
 
