@@ -232,32 +232,33 @@ const int32_t SIN_VALUES[128] = {0, 49, 98, 146, 195, 242, 290, 336,
 		-382, -336, -290, -242, -195, -146, -98, -49};
 
 
-float goertzal(uint16_t data, uint32_t data_size, uint32_t bin, float* real, float* imag) {
-    short coeff_q14;
-    short z, zprev, zprev2;
-    int   mult, pz;
-    int   n;
-
+void goertzels_fixed(uint16_t* data, uint32_t data_size, uint32_t bin, float* real, float* imag) {
 	float w = 2.0*3.141592*(float)bin/(float)NUM_DATA;
 	float cosvalue = cos(w);
 	float sinvalue = sin(w);
 	float coeff = 2*cosvalue;
+	int16_t coeff_q14 = (1<<14)*coeff;
+    float q0,q1,q2;
+    int16_t z0,z1,z2;
+    int n;
 
-    coeff_q14 = (1<<14)*coeff;
+    z1 = 0;
+    z2 = 0;
 
-    zprev = 0;
-    zprev2 = 0;
     for(n=0; n<nmax; n++) {
-        mult = (int)coeff_q14 * (int)zprev;
-        z = (x[n]>>6) + (mult>>14) - zprev2;
-        zprev2 = zprev;
-        zprev = z;
+        mult = (int)coeff_q14 * (int)z1;
+        z0 = (data[n]>>6) + (int)(mult>>14) - z2;
+        z2 = z1;
+        z1 = z;
     }
-    mult = (int)coeff_q14*(int)zprev;
 
-    pz   = zprev2*zprev2 + zprev*zprev - ((short)(mult>>14))*zprev2;
+    q0 = (float)z0*pow(2,6);
+    q1  = (float)z1*pow(2,6);
+    q2 = (float)z2*pow(2,6);
 
-    return (float)pz*pow(2.0,12);
+
+	*real = (q1*cosvalue - q2);
+	*imag = q1*sinvalue;
 }
 
 int main(void) {
