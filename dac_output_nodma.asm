@@ -6,8 +6,6 @@ fir:
 		nop
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 		.text
@@ -26,7 +24,9 @@ output_and_sample:
 		mov r2, #2			;LOOPS_BETWEEN calculation
 
 		mov r11, r3
+
 		lsl r3, r3, #1
+		add r3, r3, r0
 
         ldr r4, dport
         ldr r5, actl
@@ -55,7 +55,7 @@ output_and_sample:
 
 update_dac:
 		;move value in P4OUT for DAC
-		ldrb r9, [r1, r7]
+		ldrb r9, [r1], #1
    		strb r9, [r4] ;3 cycles due to pipelining
 
 trigger_check:
@@ -75,20 +75,13 @@ memory_check:
 no_memory_grab:
 		nop
 		nop
-		nop
-		b inc_dac_pointer
+		b check_done
 memory_grab:
 		ldrh r9, [r12] ;load ADCMEM14 into r9
-		strh r9, [r0, r8] ;strh and ldrh only takes 3 cycles due to pipeline
-		add r8, r8, #2 ;increments data pointer
+		strh r9, [r0], #2 ;strh and ldrh only takes 3 cycles due to pipeline
 
-inc_dac_pointer:
-   		add r7, r7, #1
-		cmp r7, r11
-		bne check_done
-		and r7, r7, #0
 check_done:
-		cmp r8, r3
+		cmp r0, r3
 		brne update_dac
 
 cleanup:
