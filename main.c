@@ -215,9 +215,9 @@ const int32_t COS_VALUES[128] = {64, 63, 63, 63, 62, 62, 61, 60,
 59, 60, 61, 62, 62, 63, 63, 63};
 
 const int32_t SIN_VALUES[128] = {0, 49, 98, 146, 195, 242, 290, 336,
-		382, 427, 471, 514, 555, 595, 634, 671,
-		707, 740, 773, 803, 831, 857, 881, 903,
-		923, 941, 956, 970, 980, 989, 995, 998,
+382, 427, 471, 514, 555, 595, 634, 671,
+707, 740, 773, 803, 831, 857, 881, 903,
+923, 941, 956, 970, 980, 989, 995, 998,
 		1000, 998, 995, 989, 980, 970, 956, 941,
 		923, 903, 881, 857, 831, 803, 773, 740,
 		707, 671, 634, 595, 555, 514, 471, 427,
@@ -237,28 +237,18 @@ void goertzels_fixed(uint16_t* data, uint32_t data_size, uint32_t bin, float* re
 	float cosvalue = cos(w);
 	float sinvalue = sin(w);
 	float coeff = 2*cosvalue;
-	int16_t coeff_q14 = (1<<14)*coeff;
-    float q0,q1,q2;
-    int16_t z0,z1,z2;
+	int16_t coeff_q2_4 = (1<<4)*coeff;
+    float s0,s1,s2;
+
     int n;
-
-    z1 = 0;
-    z2 = 0;
-
-    for(n=0; n<nmax; n++) {
-        mult = (int)coeff_q14 * (int)z1;
-        z0 = (data[n]>>6) + (int)(mult>>14) - z2;
-        z2 = z1;
-        z1 = z;
+    for(n=0; n<data_size; n++) {
+    	s0 = ((coeff_q2_4*s1)/(1<<4)) - s2 + data[n];
+    	s2 = s1;
+    	s1 = s0;
     }
 
-    q0 = (float)z0*pow(2,6);
-    q1  = (float)z1*pow(2,6);
-    q2 = (float)z2*pow(2,6);
-
-
-	*real = (q1*cosvalue - q2);
-	*imag = q1*sinvalue;
+	*real = (float)(s1*cosvalue - s2);
+	*imag = (float)(s1*sinvalue);
 }
 
 int main(void) {

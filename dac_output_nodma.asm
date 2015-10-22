@@ -1,10 +1,7 @@
 		.sect ".fir"
-
-;Inputs expected:	void* output_data
-;				 	void* dac_table
-;					int LOOPS_BETWEEN calculation
-;					int sample points
-
+		;A label pointing to RAM where the output/sample assmebly routine is copied
+		;This avoids the processor having to enter 'wait states' for flash memory
+		;TODO: make this more robust. The memory section is not protected.
 fir:
 		nop
 
@@ -29,7 +26,6 @@ output_and_sample:
 		mov r2, #2			;LOOPS_BETWEEN calculation
 
 		mov r11, r3
-		sub r11, r11, #1
 		lsl r3, r3, #1
 
         ldr r4, dport
@@ -54,7 +50,7 @@ output_and_sample:
         ;r8 contains data_table index
         ;r9 contains temporary values
 		;r10 contains loop counter
-		;r11 is desired sample points - 1
+		;r11 is size of DAC table (same as number of sample points)
 		;r12 contains ADC14MEM0
 
 update_dac:
@@ -80,20 +76,20 @@ no_memory_grab:
 		nop
 		nop
 		nop
-		b inc_pointers
+		b inc_dac_pointer
 memory_grab:
 		ldrh r9, [r12] ;load ADCMEM14 into r9
 		strh r9, [r0, r8] ;strh and ldrh only takes 3 cycles due to pipeline
 		add r8, r8, #2 ;increments data pointer
 
-inc_pointers:
+inc_dac_pointer:
    		add r7, r7, #1
-		and r7, r7, r11
-		;and r8, r8, #0x3F
-		;b update_dac
-		subs r9, r8, r3
+		cmp r7, r11
+		bne check_done
+		and r7, r7, #0
+check_done:
+		cmp r8, r3
 		brne update_dac
-
 
 cleanup:
 		pop {r0-r12}
