@@ -23,7 +23,7 @@ output_and_sample:
 
 		mov r2, #2			;LOOPS_BETWEEN calculation
 
-		mov r11, r3
+		mov r11, r0
 
 		lsl r3, r3, #1
 		add r3, r3, r0
@@ -66,8 +66,8 @@ no_trigger_sample:
 		nop
 		b memory_check
 trigger_sample:
-		mov r10, r2	;sets r10 equal to the number of iterations between a sample trigger and a memory grab
 		strb r6, [r5]	;sets ADC14CTL[0] to 1 enabling conversion
+		mov r10, r2	;sets r10 equal to the number of iterations between a sample trigger and a memory grab
 
 memory_check:
 		adds r10, r10, #-1
