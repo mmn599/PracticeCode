@@ -3,57 +3,41 @@
 
 #define NUM_DATA 128
 
-const uint8_t DacTable_128_1[128] = {
-		30, 31, 33, 34, 36, 37, 39, 40,
-		41, 43, 44, 45, 47, 48, 49, 50,
-		51, 52, 53, 54, 55, 56, 56, 57,
-		58, 58, 59, 59, 59, 60, 60, 60,
-		60, 60, 60, 60, 59, 59, 59, 58,
-		58, 57, 56, 56, 55, 54, 53, 52,
-		51, 50, 49, 48, 47, 45, 44, 43,
-		41, 40, 39, 37, 36, 34, 33, 31,
-		30, 29, 27, 26, 24, 23, 21, 20,
-		19, 17, 16, 15, 13, 12, 11, 10,
-		9, 8, 7, 6, 5, 4, 4, 3,
-		2, 2, 1, 1, 1, 0, 0, 0,
-		0, 0, 0, 0, 1, 1, 1, 2,
-		2, 3, 4, 4, 5, 6, 7, 8,
-		9, 10, 11, 12, 13, 15, 16, 17,
-		19, 20, 21, 23, 24, 26, 27, 29};
-
-/*uint8_t DacTable_128_1_3[128] = {30, 33, 36, 39, 41, 44, 46, 48,
-		50, 51, 52, 53, 53, 53, 53, 52,
-		51, 50, 49, 47, 45, 44, 42, 40,
-		38, 36, 35, 33, 32, 31, 31, 30,
-		30, 30, 31, 31, 32, 33, 35, 36,
-		38, 40, 42, 44, 45, 47, 49, 50,
-		51, 52, 53, 53, 53, 53, 52, 51,
-		50, 48, 46, 44, 41, 39, 36, 33,
-		30, 27, 24, 21, 19, 16, 14, 12,
-		10, 9, 8, 7, 7, 7, 7, 8,
-		9, 10, 11, 13, 15, 16, 18, 20,
-		22, 24, 25, 27, 28, 29, 29, 30,
-		30, 30, 29, 29, 28, 27, 25, 24,
-		22, 20, 18, 16, 15, 13, 11, 10,
-		9, 8, 7, 7, 7, 7, 8, 9,
-		10, 12, 14, 16, 19, 21, 24, 27};
-
-uint8_t DacTable_128_1_3_5_7[128] = {30, 36, 41, 46, 49, 51, 52, 51,
-		50, 47, 44, 40, 37, 34, 32, 30,
-		30, 30, 31, 33, 35, 36, 37, 38,
-		38, 38, 37, 35, 34, 32, 31, 30,
-		30, 30, 31, 32, 34, 35, 37, 38,
-		38, 38, 37, 36, 35, 33, 31, 30,
-		30, 30, 32, 34, 37, 40, 44, 47,
-		50, 51, 52, 51, 49, 46, 41, 36,
-		30, 24, 19, 14, 11, 9, 8, 9,
-		10, 13, 16, 20, 23, 26, 28, 30,
-		30, 30, 29, 27, 25, 24, 23, 22,
-		22, 22, 23, 25, 26, 28, 29, 30,
-		30, 30, 29, 28, 26, 25, 23, 22,
-		22, 22, 23, 24, 25, 27, 29, 30,
-		30, 30, 28, 26, 23, 20, 16, 13,
-		10, 9, 8, 9, 11, 14, 19, 24};*/
+uint8_t DacTable_270_1_3_5[270] = {
+		30, 32, 34, 36, 38, 40, 42, 44,
+		45, 47, 48, 49, 50, 51, 51, 52,
+		52, 52, 52, 52, 52, 51, 50, 50,
+		49, 48, 47, 45, 44, 43, 42, 40,
+		39, 38, 37, 36, 35, 34, 33, 32,
+		31, 31, 31, 30, 30, 30, 30, 30,
+		30, 31, 31, 32, 32, 33, 34, 34,
+		35, 36, 36, 37, 38, 38, 39, 39,
+		39, 40, 40, 40, 40, 40, 40, 39,
+		39, 39, 38, 38, 37, 36, 36, 35,
+		34, 34, 33, 32, 32, 31, 31, 30,
+		30, 30, 30, 30, 30, 31, 31, 31,
+		32, 33, 34, 35, 36, 37, 38, 39,
+		40, 42, 43, 44, 45, 47, 48, 49,
+		50, 50, 51, 52, 52, 52, 52, 52,
+		52, 51, 51, 50, 49, 48, 47, 45,
+		44, 42, 40, 38, 36, 34, 32, 30,
+		28, 26, 24, 22, 20, 18, 16, 15,
+		13, 12, 11, 10, 9, 9, 8, 8,
+		8, 8, 8, 8, 9, 10, 10, 11,
+		12, 13, 15, 16, 17, 18, 20, 21,
+		22, 23, 24, 25, 26, 27, 28, 29,
+		29, 29, 30, 30, 30, 30, 30, 30,
+		29, 29, 28, 28, 27, 26, 26, 25,
+		24, 24, 23, 22, 22, 21, 21, 21,
+		20, 20, 20, 20, 20, 20, 21, 21,
+		21, 22, 22, 23, 24, 24, 25, 26,
+		26, 27, 28, 28, 29, 29, 30, 30,
+		30, 30, 30, 30, 29, 29, 29, 28,
+		27, 26, 25, 24, 23, 22, 21, 20,
+		18, 17, 16, 15, 13, 12, 11, 10,
+		10, 9, 8, 8, 8, 8, 8, 8,
+		9, 9, 10, 11, 12, 13, 15, 16,
+		18, 20, 22, 24, 26, 28};
 
 void ADC_Init() {
 	ADC14_enableModule();
@@ -175,88 +159,69 @@ void dft_float(uint16_t* data, uint32_t data_size, float* realresults, float* im
 	}
 }
 
-void goertzels_float(uint16_t* data_buff, uint32_t data_size, uint32_t bin, float* real, float* imag) {
-	float w = 2.0*3.141592*(float)bin/(float)NUM_DATA;
-	float cosvalue = cos(w);
-	float sinvalue = sin(w);
-	float coeff = 2*cosvalue;
+//TODO: store const array of w values to improve performance
+void goertzels_float(uint16_t* data_buff, uint32_t data_size, uint32_t* bins, uint8_t bin_count, float* real, float* imag) {
+	int b;
+	for(b=0;b<bin_count;b++) {
+		float w = 2.0*3.141592*(float)bins[b]/(float)NUM_DATA;
+		float cosvalue = cos(w);
+		float sinvalue = sin(w);
+		float coeff = 2*cosvalue;
 
-	float q0 = 	0;
-	float q1 = 0;
-	float q2 = 0;
+		float q0 = 	0;
+		float q1 = 0;
+		float q2 = 0;
 
-	int i;
-	for(i=0;i<data_size;i++) {
-		float value = (float)data_buff[i];
-		q0 = coeff*q1 - q2 + value;
-		q2 = q1;
-		q1 = q0;
+		int i;
+		for(i=0;i<data_size;i++) {
+			float value = (float)data_buff[i];
+			q0 = coeff*q1 - q2 + value;
+			q2 = q1;
+			q1 = q0;
+		}
+
+		real[b] = (q1*cosvalue - q2);
+		imag[b] = q1*sinvalue;
 	}
-
-	*real = (q1*cosvalue - q2);
-	*imag = q1*sinvalue;
 }
 
-/*const int32_t COS_VALUES[128] = {64, 63, 63, 63, 62, 62, 61, 60,
-59, 57, 56, 54, 53, 51, 49, 47,
-45, 42, 40, 38, 35, 32, 30, 27,
-24, 21, 18, 15, 12, 9, 6, 3,
-0, -3, -6, -9, -12, -15, -18, -21,
--24, -27, -30, -32, -35, -38, -40, -42,
--45, -47, -49, -51, -53, -54, -56, -57,
--59, -60, -61, -62, -62, -63, -63, -63,
--64, -63, -63, -63, -62, -62, -61, -60,
--59, -57, -56, -54, -53, -51, -49, -47,
--45, -42, -40, -38, -35, -32, -30, -27,
--24, -21, -18, -15, -12, -9, -6, -3,
-0, 3, 6, 9, 12, 15, 18, 21,
-24, 27, 30, 32, 35, 38, 40, 42,
-45, 47, 49, 51, 53, 54, 56, 57,
-59, 60, 61, 62, 62, 63, 63, 63};
+/* values calculated for Xpt sample at Fs
+ * index k repr esents value corresponding to bin number
+ * corresponds to frequency = k*(Fs/X)
+ * k=0 ... bin=1
+ */
+const int32_t COS_NUM[5] = {};
+const int32_t COS_DEN[5] = {};
+const int32_t SIN_NUM[5] = {};
+const int32_t SIN_DEN[5] = {};
+const int32_t COEFF_NUM[5] = {};
+const int32_t COEFF_DEN[5] = {};
 
-const int32_t SIN_VALUES[128] = {0, 49, 98, 146, 195, 242, 290, 336,
-382, 427, 471, 514, 555, 595, 634, 671,
-707, 740, 773, 803, 831, 857, 881, 903,
-923, 941, 956, 970, 980, 989, 995, 998,
-		1000, 998, 995, 989, 980, 970, 956, 941,
-		923, 903, 881, 857, 831, 803, 773, 740,
-		707, 671, 634, 595, 555, 514, 471, 427,
-		382, 336, 290, 242, 195, 146, 98, 49,
-		0, -49, -98, -146, -195, -242, -290, -336,
-		-382, -427, -471, -514, -555, -595, -634, -671,
-		-707, -740, -773, -803, -831, -857, -881, -903,
-		-923, -941, -956, -970, -980, -989, -995, -998,
-		-1000, -998, -995, -989, -980, -970, -956, -941,
-		-923, -903, -881, -857, -831, -803, -773, -740,
-		-707, -671, -634, -595, -555, -514, -471, -427,
-		-382, -336, -290, -242, -195, -146, -98, -49};*/
+void goertzels_fixed(uint16_t* data, uint32_t data_size, uint32_t bins, uint8_t bin_count, int32_t* real, int32_t* imag) {
+    int b;
+    for(b=0;b<bin_count;b++) {
+        int32_t z0, z1, z2;
+        uint32_t n;
 
-uint32_t scale = 8;
+        int32_t cos_num = COS_NUM[b];
+        int32_t cos_den = COS_DEN[b];
+        int32_t sin_num = SIN_NUM[b];
+        int32_t sin_den = SIN_DEN[b];
+        int32_t coeff_num = COEFF_NUM[b];
+        int32_t coeff_den = COEFF_DEN[b];
 
-void goertzels_fixed(uint16_t* data, uint32_t data_size, uint32_t bin, float* real, float* imag) {
-    long coeff_scale;
-    long z0, z1, z2;
-    long mult;
-    long n;
+        z1 = 0;
+        z2 = 0;
+        for(n=0; n<data_size; n++) {
+        	z0 = (coeff_num*z1)/coeff_den - z2 + value;
+        	z2 = z1;
+        	z1 = z0;
+        }
 
-    float w = 2.0*3.141592*(float)bin/(float)NUM_DATA;
-    float cosvalue = cos(w);
-    float sinvalue = sin(w);
-    float coeff = 2*cosvalue;
-
-    coeff_scale = (1<<scale)*coeff;
-
-    z1 = 0;
-    z2 = 0;
-    for(n=0; n<data_size; n++) {
-        mult = coeff_scale * z1;
-        z0 = data[n] + (mult>>scale) - z2;
-        z2 = z1;
-        z1= z0;
+    	real[b] = (z1*cos_num)/cos_den - z2;
+    	imag[b] = (z1*sin_num)/sin_den;
     }
 
-	*real = z1*cosvalue - z2;
-	*imag = z1*sinvalue;
 }
 
 int main(void) {
@@ -274,21 +239,11 @@ int main(void) {
 
     float imagresults[NUM_DATA];
 	float realresults[NUM_DATA];
-	float powerresults[NUM_DATA];
-	float fixed_real;
-	float fixed_imag;
-	float actual_real;
-	float actual_imag;
 	uint16_t data_table[NUM_DATA];
 
     while(1) {
-    	output_and_sample(data_table, DacTable_128_1, sampleFunctionPointer, NUM_DATA);
-
-//    	sampleLoop(data_table, DacTable_128_1, sampleFunctionPointer, NUM_DATA);
-//      	dft_float(data_table, NUM_DATA, realresults, imagresults, powerresults);
-//    	goertzels_fixed(data_table, 128, 2, &fixed_real, &fixed_imag);
-//    	goertzels_float(data_table, 128, 2, &actual_real, &actual_imag);
-//
-//      	sendFloatDFTUART(data_table, powerresults, NUM_DATA);
+    	sampleLoop(data_table, DacTable_270_1_3_5, sampleFunctionPointer, NUM_DATA);
+      	dft_float(data_table, NUM_DATA, realresults, imagresults, powerresults);
+      	sendFloatDFTUART(data_table, powerresults, NUM_DATA);
     }
 }
